@@ -12,6 +12,7 @@ services:
       - /app/node_modules
     environment:
       - WATCHPACK_POLLING=true
+      - VITE_API_URL=${VITE_API_URL}
     depends_on:
       - backend
 

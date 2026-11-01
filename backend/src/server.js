@@ -3,6 +3,11 @@ const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const calculoRoutes = require('./routes/calculoRoutes');
 
+if (!process.env.JWT_SECRET) {
+  console.error('JWT_SECRET não definido. Configure a variável de ambiente antes de iniciar o servidor.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3000;
 
