@@ -61,7 +61,7 @@ export default function Cadastro() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-naf-light p-4">
+    <div className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4">
       <h1
         className={`text-3xl font-bold text-center mb-6 text-naf-blue transition-all duration-[700ms] ease-out delay-[100ms]
           ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
