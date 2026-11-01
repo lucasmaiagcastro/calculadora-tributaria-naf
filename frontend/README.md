@@ -3,17 +3,30 @@
 Esta pasta contém a interface gráfica de usuário (Single Page Application) da Calculadora Tributária, projetada com foco em experiência do usuário (UX) e responsividade para os atendimentos do NAF.
 
 ## 🛠️ Tecnologias e Bibliotecas
-* **Core:** ReactJS estruturado e compilado via Vite (Node Alpine no ecossistema Docker).
-* **Roteamento:** React Router Dom com gerenciamento de rotas protegidas (bloqueio de acesso sem token).
-* **Estilização:** Tailwind CSS com transições fluidas e efeitos modernos de animação.
-* **Comunicação:** Axios configurado com *interceptors* para injeção automática do Bearer Token JWT no cabeçalho das requisições.
-* **Exportação:** html2pdf.js para captura do DOM e conversão em relatórios fiscais oficiais.
+* **Core:** ReactJS 19 (componentes funcionais e hooks) compilado via Vite.
+* **Roteamento:** React Router Dom com layout compartilhado (menu e rodapé), rotas protegidas por token e página 404.
+* **Estilização:** Tailwind CSS 4, com tema claro/escuro alternado por classe no `<html>`.
+* **Gráfico:** Recharts (comparativo PF x PJ).
+* **Comunicação:** Axios com *interceptor* que injeta o Bearer Token JWT nas requisições (`VITE_API_URL` define a URL da API).
+* **Exportação:** html2pdf.js para o relatório em PDF e geração de CSV do histórico.
 
-## 📄 Fluxos e Telas Conectadas à API
-* **Acesso e Sessão:** Formulários reais e validados de **Login** e **Cadastro**, armazenando o token no `localStorage`.
-* **Painel Interno:** Home integrada protegendo o acesso às calculadoras.
-* **Simuladores Conectados:** Telas de Cálculo PF, Cálculo PJ e Análise de Vantagem Comparativa disparando parâmetros ao motor fiscal do servidor e atualizando os estados em tempo real.
-* **Histórico de Simulações:** Página com tabela responsiva que busca e renderiza o histórico de simulações salvas no banco de dados do usuário autenticado.
+## 📄 Rotas e Telas
+| Rota | Tela |
+|---|---|
+| `/` | Formulário da calculadora (profissão, renda, custos e, para médico e dentista, pró-labore do Fator R) |
+| `/comparativo` | Resultado: cabeçalho, melhor opção, gráfico PF x PJ, memória de cálculo, PDF, e-mail e vídeo. Sem dados, redireciona para `/` |
+| `/historico` | Simulações salvas do usuário, com Fator R/Anexo e exportação em CSV |
+| `/faq`, `/sobre` | Dúvidas frequentes; explicação dos cálculos e contato com o NAF |
+| `/inicio`, `/login`, `/cadastro`, `/recuperar-senha` | Páginas públicas |
+| `*` | Página 404 personalizada |
+
+## 🗂️ Organização do código (`src/`)
+* `Pages/`: uma tela por rota (Formulario, Comparativo, Historico, Faq, Sobre, NotFound, Login, Cadastro, Landing, RecuperarSenha).
+* `components/`: Layout, Navbar, Footer, RotaProtegida, ThemeToggle, GraficoComparativo e MemoriaCalculo.
+* `services/api.js`: cliente axios; `utils/`: formatação de valores e geração de CSV.
+
+## ♿ Acessibilidade e Responsividade
+Uso a partir de 320 px sem rolagem horizontal, rótulos associados a todos os campos, erros anunciados com `role="alert"`, link para pular ao conteúdo, foco visível por teclado e contraste AA, nos dois temas. O Lighthouse (build de produção) registra 100 em Acessibilidade e Desempenho nas rotas medidas.
 
 ## 🚀 Execução Local (Desenvolvimento Isolado)
 Se preferir rodar ou testar apenas a interface do React de forma isolada sem o Docker Compose da raiz:
