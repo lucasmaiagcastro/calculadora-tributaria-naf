@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { percentual } from "../utils/formatar";
 
 export default function Historico() {
   const [calculos, setCalculos] = useState([]);
@@ -44,7 +45,7 @@ export default function Historico() {
         {/* Cabeçalho */}
         <div className={`text-center mb-8 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h1 className="text-3xl font-bold text-[#132436] mb-2">Suas Simulações Salvas</h1>
-          <p className="text-[#B2B2B2] font-medium max-w-xl mx-auto">
+          <p className="text-[#374151] font-medium max-w-xl mx-auto">
             Confira abaixo o histórico de todos os cálculos e comparativos tributários guardados em sua conta.
           </p>
         </div>
@@ -53,36 +54,38 @@ export default function Historico() {
         <div className={`w-full max-w-5xl bg-white rounded-3xl shadow-xl border border-gray-200 p-6 md:p-8 transition-all duration-[700ms] ease-out delay-[400ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           
           {carregando ? (
-            <div className="text-center py-10 text-naf-gray font-medium animate-pulse">
+            <div role="status" className="text-center py-10 text-gray-700 font-medium animate-pulse">
               Carregando histórico do banco de dados...
             </div>
           ) : erro ? (
-            <div className="text-center py-10 text-naf-red font-semibold">
+            <div role="alert" className="text-center py-10 text-naf-red font-semibold">
               {erro}
             </div>
           ) : calculos.length === 0 ? (
             <div className="text-center py-12">
-              <svg className="w-16 h-16 text-naf-gray/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg aria-hidden="true" className="w-16 h-16 text-naf-gray/40 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
-              <p className="text-naf-gray font-medium text-lg">Você ainda não realizou nenhuma simulação.</p>
-              <button onClick={() => navigate("/comparativo")} className="mt-4 px-6 py-2.5 bg-naf-red text-white font-bold rounded-xl hover:bg-[#a62b18] transition shadow-md">
+              <p className="text-gray-700 font-medium text-lg">Você ainda não realizou nenhuma simulação.</p>
+              <button onClick={() => navigate("/")} className="mt-4 px-6 py-2.5 bg-naf-red text-white font-bold rounded-xl hover:bg-[#a62b18] transition shadow-md cursor-pointer">
                 Fazer Primeiro Cálculo
               </button>
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-inner">
               <table className="min-w-full text-sm text-gray-700">
+                <caption className="sr-only">Histórico de simulações tributárias salvas</caption>
                 <thead className="bg-[#132436] text-white text-xs uppercase tracking-wider">
                   <tr>
-                    <th className="py-4 px-4 text-left">Data</th>
-                    <th className="py-4 px-4 text-left">Profissão</th>
-                    <th className="py-4 px-4 text-left">Faturamento (Bruto)</th>
-                    <th className="py-4 px-4 text-left">Livro Caixa (PF)</th>
-                    <th className="py-4 px-4 text-left">Imposto PF</th>
-                    <th className="py-4 px-4 text-left">Imposto PJ</th>
-                    <th className="py-4 px-4 text-center">Melhor Opção</th>
-                    <th className="py-4 px-4 text-right">Economia</th>
+                    <th scope="col" className="py-4 px-4 text-left">Data</th>
+                    <th scope="col" className="py-4 px-4 text-left">Profissão</th>
+                    <th scope="col" className="py-4 px-4 text-left">Faturamento (Bruto)</th>
+                    <th scope="col" className="py-4 px-4 text-left">Livro Caixa (PF)</th>
+                    <th scope="col" className="py-4 px-4 text-left">Imposto PF</th>
+                    <th scope="col" className="py-4 px-4 text-left">Imposto PJ</th>
+                    <th scope="col" className="py-4 px-4 text-left">Fator R</th>
+                    <th scope="col" className="py-4 px-4 text-center">Melhor Opção</th>
+                    <th scope="col" className="py-4 px-4 text-right">Economia</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -106,6 +109,9 @@ export default function Historico() {
                       <td className="py-4 px-4 text-[#CD371F] font-medium">
                         R$ {item.impostoPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </td>
+                      <td className="py-4 px-4 text-gray-600">
+                        {item.anexo ? `${percentual(item.fatorR)} · Anexo ${item.anexo}` : "—"}
+                      </td>
                       <td className="py-4 px-4 text-center">
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
                           item.melhorOpcao.includes("PJ") 
@@ -115,7 +121,7 @@ export default function Historico() {
                           {item.melhorOpcao.includes("PJ") ? "PJ" : "PF"}
                         </span>
                       </td>
-                      <td className="py-4 px-4 text-right font-bold text-green-600">
+                      <td className="py-4 px-4 text-right font-bold text-green-700">
                         R$ {item.economiaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                       </td>
                     </tr>

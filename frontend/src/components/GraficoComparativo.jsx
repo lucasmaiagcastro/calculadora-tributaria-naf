@@ -11,25 +11,23 @@ export default function GraficoComparativo({ impostoPF, impostoPJ }) {
   ];
 
   return (
-    <figure
-      role="img"
-      aria-label={`Gráfico de barras: imposto mensal de ${brl(impostoPF)} como PF e ${brl(impostoPJ)} como PJ`}
-      className="mb-8"
-    >
+    <figure className="mb-8">
       <figcaption className="text-center font-bold text-[#132436] mb-2 uppercase tracking-wider text-sm">
         Imposto mensal: PF x PJ
       </figcaption>
-      <ResponsiveContainer width="100%" height={260}>
-        <BarChart data={dados} margin={{ top: 24, right: 16, left: 16, bottom: 8 }}>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#d1d5db" />
-          <XAxis dataKey="regime" tick={{ fill: "#132436", fontSize: 13 }} />
-          <YAxis tickFormatter={(v) => brl(v)} tick={{ fill: "#374151", fontSize: 12 }} width={90} />
-          <Bar dataKey="valor" isAnimationActive={false} radius={[6, 6, 0, 0]} maxBarSize={110}>
-            {dados.map((d) => <Cell key={d.regime} fill={d.cor} />)}
-            <LabelList dataKey="valor" position="top" formatter={(v) => brl(v)} fill="#132436" fontSize={13} fontWeight={700} />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div role="img" aria-label={`Gráfico de barras: imposto mensal de ${brl(impostoPF)} como PF e ${brl(impostoPJ)} como PJ`}>
+        <ResponsiveContainer width="100%" height={260}>
+          <BarChart data={dados} margin={{ top: 24, right: 16, left: 16, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#d1d5db" />
+            <XAxis dataKey="regime" tick={{ fill: "#132436", fontSize: 13 }} />
+            <YAxis tickFormatter={(v) => brl(v)} tick={{ fill: "#374151", fontSize: 12 }} width={90} />
+            <Bar dataKey="valor" isAnimationActive={false} radius={[6, 6, 0, 0]} maxBarSize={110}>
+              {dados.map((d) => <Cell key={d.regime} fill={d.cor} />)}
+              <LabelList dataKey="valor" position="top" formatter={(v) => brl(v)} fill="#132436" fontSize={13} fontWeight={700} />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </figure>
   );
 }

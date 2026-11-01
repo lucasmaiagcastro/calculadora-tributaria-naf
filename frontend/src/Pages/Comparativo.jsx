@@ -78,7 +78,7 @@ function ResultadoComparativo({ resultado }) {
       <main className="flex-grow flex flex-col items-center py-10 px-4">
         <div className={`text-center mb-8 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h1 className="text-3xl font-bold text-[#132436] mb-2">Resultado do comparativo</h1>
-          <Link to="/" className="font-bold text-[#CD371F] underline hover:text-[#a62b18]">Fazer nova simulação</Link>
+          <Link to="/" className="font-bold text-[#a62b18] underline hover:text-[#7f1f12]">Fazer nova simulação</Link>
         </div>
 
         <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-gray-200">
@@ -102,19 +102,19 @@ function ResultadoComparativo({ resultado }) {
                   <p className="text-[#374151] font-medium">Atuando como {resultado.siglaVencedora}, você tem uma <span className="font-bold underline decoration-2">economia de {brl(resultado.diferenca)}</span> todos os meses.</p>
                 </div>
 
-                <h4 className="text-center font-bold text-[#132436] mb-4 uppercase tracking-wider text-sm">Resumo Detalhado dos Cálculos</h4>
+                <h2 className="text-center font-bold text-[#132436] mb-4 uppercase tracking-wider text-sm">Resumo Detalhado dos Cálculos</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PF' ? '#3b82f6' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PF' ? '#ffffff' : '#f3f4f6', opacity: resultado.siglaVencedora === 'PF' ? 1 : 0.7 }}>
+                  <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PF' ? '#3b82f6' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PF' ? '#ffffff' : '#f3f4f6', opacity: 1 }}>
                     <h3 className="font-bold text-xl text-[#132436] mb-4 border-b border-[#e5e7eb] pb-2 flex items-center justify-between">Pessoa Física (PF) {resultado.siglaVencedora === 'PF' && <span className="text-xs bg-[#eff6ff] text-[#1d4ed8] px-2 py-1 rounded-full uppercase">Recomendado</span>}</h3>
                     <div className="space-y-3 text-sm text-[#374151]">
                       <div className="flex justify-between"><span>Base de Cálculo:</span> <span className="font-semibold">{brl(resultado.pf.base)}</span></div>
                       <div className="flex justify-between"><span>Faixa IRPF:</span> <span className="font-semibold">{resultado.pf.faixa}</span></div>
-                      <div className="flex justify-between"><span>Dedução Permitida:</span> <span className="font-semibold text-[#16a34a]">- {brl(resultado.pf.parcelaDedutivel)}</span></div>
+                      <div className="flex justify-between"><span>Dedução Permitida:</span> <span className="font-semibold text-[#15803d]">- {brl(resultado.pf.parcelaDedutivel)}</span></div>
                     </div>
                     <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">{brl(resultado.pf.imposto)}</span></div>
                   </div>
 
-                  <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PJ' ? '#22c55e' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PJ' ? '#ffffff' : '#f3f4f6', opacity: resultado.siglaVencedora === 'PJ' ? 1 : 0.7 }}>
+                  <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PJ' ? '#22c55e' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PJ' ? '#ffffff' : '#f3f4f6', opacity: 1 }}>
                     <h3 className="font-bold text-xl text-[#132436] mb-4 border-b border-[#e5e7eb] pb-2 flex items-center justify-between">Pessoa Jurídica (PJ) {resultado.siglaVencedora === 'PJ' && <span className="text-xs bg-[#f0fdf4] text-[#15803d] px-2 py-1 rounded-full uppercase">Recomendado</span>}</h3>
                     <div className="space-y-3 text-sm text-[#374151]">
                       {resultado.pj.anexo && (
@@ -147,27 +147,27 @@ function ResultadoComparativo({ resultado }) {
                 </button>
 
                 <div className="text-center mt-2">
-                  <button onClick={() => setMostrarEmail(!mostrarEmail)} className="text-sm font-bold text-gray-500 hover:text-[#132436] transition-colors underline cursor-pointer bg-transparent border-none">Deseja enviar os resultados para o seu e-mail?</button>
+                  <button onClick={() => setMostrarEmail(!mostrarEmail)} aria-expanded={mostrarEmail} aria-controls="form-email" className="text-sm font-bold text-[#374151] hover:text-[#132436] transition-colors underline cursor-pointer bg-transparent border-none">Deseja enviar os resultados para o seu e-mail?</button>
                 </div>
 
                 {mostrarEmail && (
-                  <div className="mt-2 space-y-3 p-4 bg-white border border-gray-300 rounded-xl shadow-sm">
-                    <label className="block text-sm font-medium text-[#132436]">Qual e-mail deve receber a simulação?</label>
+                  <div id="form-email" className="mt-2 space-y-3 p-4 bg-white border border-gray-300 rounded-xl shadow-sm">
+                    <label htmlFor="email-resultado" className="block text-sm font-medium text-[#132436]">Qual e-mail deve receber a simulação?</label>
                     <div className="flex flex-col sm:flex-row gap-2">
-                      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contato@exemplo.com" className="flex-grow border border-gray-300 px-4 py-2 rounded-xl focus:ring-2 focus:ring-[#132436] outline-none text-sm" />
+                      <input id="email-resultado" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contato@exemplo.com" className="flex-grow border border-gray-300 px-4 py-2 rounded-xl focus:ring-2 focus:ring-[#132436] outline-none text-sm" />
                       <button onClick={enviarEmail} className="bg-[#CD371F] text-white px-6 py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold cursor-pointer shadow-sm">Enviar Agora</button>
                     </div>
-                    {mensagemEnvio && <p className="text-sm font-bold text-green-600">{mensagemEnvio}</p>}
+                    {mensagemEnvio && <p role="status" className="text-sm font-bold text-green-700">{mensagemEnvio}</p>}
                   </div>
                 )}
               </div>
 
               <div className="px-6 md:px-8 pb-8 pt-6 border-t border-gray-200 bg-white rounded-b-3xl">
                 <div className="text-center mb-4">
-                  <h4 className="font-bold text-[#132436] uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+                  <h2 className="font-bold text-[#132436] uppercase tracking-wider text-sm flex items-center justify-center gap-2">
                     <svg className="w-5 h-5 text-[#CD371F]" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" /></svg>
                     Conteúdo Recomendado Para Você
-                  </h4>
+                  </h2>
                   <p className="text-sm text-gray-500">Separamos este vídeo do Sebrae para te ajudar a entender melhor o regime {resultado.siglaVencedora}.</p>
                 </div>
                 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 export default function Cadastro() {
@@ -43,12 +43,11 @@ export default function Cadastro() {
     try {
       await api.post("/auth/register", { name, email, password });
 
-      alert("Cadastro realizado com sucesso! Agora você pode fazer o login.");
-      navigate("/login");
+      navigate("/login", { state: { mensagem: "Cadastro realizado com sucesso! Agora você pode fazer o login." } });
 
     } catch (error) {
       const mensagemErro = error.response?.data?.error || "Erro ao conectar com o servidor.";
-      alert(mensagemErro);
+      setErrors({ form: mensagemErro });
     }
   };
 
@@ -61,7 +60,7 @@ export default function Cadastro() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4">
+    <main className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4">
       <h1
         className={`text-3xl font-bold text-center mb-6 text-naf-blue transition-all duration-[700ms] ease-out delay-[100ms]
           ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
@@ -87,18 +86,22 @@ export default function Cadastro() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-1 text-sm font-medium text-naf-blue">
+            <label htmlFor="cad-nome" className="block mb-1 text-sm font-medium text-naf-blue">
               Nome Completo
             </label>
             <input
+              id="cad-nome"
               type="text"
+              autoComplete="name"
+              aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "cad-nome-erro" : undefined}
               placeholder="Digite seu nome"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
             />
             {errors.name && (
-              <p className="mt-1 text-xs text-naf-red font-medium">{errors.name}</p>
+              <p id="cad-nome-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">{errors.name}</p>
             )}
           </div>
 
@@ -107,18 +110,22 @@ export default function Cadastro() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-1 text-sm font-medium text-naf-blue">
+            <label htmlFor="cad-email" className="block mb-1 text-sm font-medium text-naf-blue">
               Email
             </label>
             <input
+              id="cad-email"
               type="email"
+              autoComplete="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "cad-email-erro" : undefined}
               placeholder="Digite seu email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
             />
             {errors.email && (
-              <p className="mt-1 text-xs text-naf-red font-medium">{errors.email}</p>
+              <p id="cad-email-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">{errors.email}</p>
             )}
           </div>
 
@@ -127,18 +134,22 @@ export default function Cadastro() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-1 text-sm font-medium text-naf-blue">
+            <label htmlFor="cad-senha" className="block mb-1 text-sm font-medium text-naf-blue">
               Senha
             </label>
             <input
+              id="cad-senha"
               type="password"
+              autoComplete="new-password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? "cad-senha-erro" : undefined}
               placeholder="Crie uma senha segura"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
             />
             {errors.password && (
-              <p className="mt-1 text-xs text-naf-red font-medium">{errors.password}</p>
+              <p id="cad-senha-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">{errors.password}</p>
             )}
           </div>
 
@@ -147,18 +158,22 @@ export default function Cadastro() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-1 text-sm font-medium text-naf-blue">
+            <label htmlFor="cad-confirmar" className="block mb-1 text-sm font-medium text-naf-blue">
               Confirmar Senha
             </label>
             <input
+              id="cad-confirmar"
               type="password"
+              autoComplete="new-password"
+              aria-invalid={Boolean(errors.confirmPassword)}
+              aria-describedby={errors.confirmPassword ? "cad-confirmar-erro" : undefined}
               placeholder="Repita a senha"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm"
             />
             {errors.confirmPassword && (
-              <p className="mt-1 text-xs text-naf-red font-medium">
+              <p id="cad-confirmar-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">
                 {errors.confirmPassword}
               </p>
             )}
@@ -169,6 +184,9 @@ export default function Cadastro() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
+            {errors.form && (
+              <p role="alert" className="mb-3 text-sm text-naf-red font-medium text-center">{errors.form}</p>
+            )}
             <button
               type="submit"
               className="w-full bg-naf-red text-white font-bold py-3 rounded-xl hover:bg-[#a62b18] transition delay-[80ms] duration-[400ms] ease-in-out hover:scale-105 shadow-md cursor-pointer"
@@ -179,19 +197,16 @@ export default function Cadastro() {
         </form>
 
         <p
-          className={`text-center text-sm text-naf-gray mt-6 transition-all duration-[700ms] ease-out delay-[800ms] ${
+          className={`text-center text-sm text-gray-700 mt-6 transition-all duration-[700ms] ease-out delay-[800ms] ${
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
           }`}
         >
           Já tem conta?{" "}
-          <button
-            onClick={() => navigate("/login")}
-            className="text-naf-red hover:underline font-bold bg-transparent border-none p-0 cursor-pointer"
-          >
+          <Link to="/login" className="text-naf-red hover:underline font-bold">
             Faça login
-          </button>
+          </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }
