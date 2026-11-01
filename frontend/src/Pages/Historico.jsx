@@ -73,7 +73,7 @@ export default function Historico() {
         </div>
 
         {/* Listagem / Tabela */}
-        <div className={`w-full max-w-5xl bg-white rounded-3xl shadow-xl border border-gray-200 p-6 md:p-8 transition-all duration-[700ms] ease-out delay-[400ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+        <div className={`w-full max-w-5xl min-h-[70vh] bg-white rounded-3xl shadow-xl border border-gray-200 p-6 md:p-8 transition-all duration-[700ms] ease-out delay-[400ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           
           {carregando ? (
             <div role="status" className="text-center py-10 text-gray-700 font-medium animate-pulse">
