@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 
 export default function Login() {
@@ -7,6 +7,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
+  const aviso = useLocation().state?.mensagem;
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -44,19 +45,16 @@ export default function Login() {
       localStorage.setItem("token", response.data.token);
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
-      alert("Login realizado com sucesso!");
       navigate("/");
 
     } catch (error) {
       const mensagemErro = error.response?.data?.error || "Erro ao conectar ao servidor.";
-      alert(mensagemErro);
+      setErrors({ form: mensagemErro });
     }
   };
 
   return (
-    <div
-      className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4"
-    >
+    <main className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4">
       <h1
         className={`text-3xl font-bold text-center mb-6 text-naf-blue transition-all duration-[700ms] ease-out delay-[200ms]
           ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"}`}
@@ -76,17 +74,23 @@ export default function Login() {
           Login
         </h2>
 
+        {aviso && <p role="status" className="mb-4 text-sm font-bold text-green-800 text-center">{aviso}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-5" noValidate>
           <div
             className={`transition-all duration-[700ms] ease-out delay-[700ms] ${
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-2 text-sm font-medium text-naf-blue">
+            <label htmlFor="login-email" className="block mb-2 text-sm font-medium text-naf-blue">
               Email
             </label>
             <input
+              id="login-email"
               type="email"
+              autoComplete="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? "login-email-erro" : undefined}
               placeholder="Digite seu email"
               value={email}
               onChange={(e) => {
@@ -98,13 +102,13 @@ export default function Login() {
                   }
                 }
               }}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:-translate-y-1 hover:shadow-md"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:-translate-y-1 hover:shadow-md"
             />
-            <div>
-              <p className="mt-1 text-sm text-naf-red font-medium">
-                {errors.email || " "}
+            {errors.email && (
+              <p id="login-email-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">
+                {errors.email}
               </p>
-            </div>
+            )}
           </div>
 
           <div
@@ -112,18 +116,22 @@ export default function Login() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
-            <label className="block mb-2 text-sm font-medium text-naf-blue">
+            <label htmlFor="login-senha" className="block mb-2 text-sm font-medium text-naf-blue">
               Senha
             </label>
             <input
+              id="login-senha"
               type="password"
+              autoComplete="current-password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? "login-senha-erro" : undefined}
               placeholder="Digite sua senha"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-naf-gray rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:-translate-y-1 hover:shadow-md"
+              className="w-full px-4 py-2 border border-gray-500 rounded-xl focus:ring-2 focus:ring-naf-red focus:border-transparent outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:-translate-y-1 hover:shadow-md"
             />
             {errors.password && (
-              <p className="mt-1 text-sm text-naf-red font-medium">
+              <p id="login-senha-erro" role="alert" className="mt-1 text-sm text-naf-red font-medium">
                 {errors.password}
               </p>
             )}
@@ -134,6 +142,9 @@ export default function Login() {
               isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
+            {errors.form && (
+              <p role="alert" className="mb-3 text-sm text-naf-red font-medium text-center">{errors.form}</p>
+            )}
             <button
               type="submit"
               className="w-full bg-naf-red text-white font-bold py-3 rounded-xl hover:bg-[#a62b18] transition delay-[80ms] duration-[400ms] ease-in-out hover:scale-105 shadow-md"
@@ -144,34 +155,27 @@ export default function Login() {
         </form>
 
         <p
-          className={`text-center text-sm text-naf-gray mt-6 transition-all duration-[700ms] ease-out delay-[1150ms] ${
+          className={`text-center text-sm text-gray-700 mt-6 transition-all duration-[700ms] ease-out delay-[1150ms] ${
             isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
           Não tem conta?{" "}
-          <a href="/Cadastro" className="text-naf-red hover:underline font-bold">
+          <Link to="/cadastro" className="text-naf-red hover:underline font-bold">
             Cadastre-se
-          </a>
+          </Link>
         </p>
 
         <p
-          className={`text-center text-sm text-naf-gray mt-2 transition-all duration-[700ms] ease-out delay-[1250ms] ${
+          className={`text-center text-sm text-gray-700 mt-2 transition-all duration-[700ms] ease-out delay-[1250ms] ${
             isVisible ? "opacity-100" : "opacity-0"
           }`}
         >
           Esqueceu a senha?{" "}
-          <a href="/recuperar-senha" className="text-naf-red hover:underline font-bold">
+          <Link to="/recuperar-senha" className="text-naf-red hover:underline font-bold">
             Recuperar Senha
-          </a>
+          </Link>
         </p>
       </div>
-
-      <h2
-        className={`block mb-2 mt-6 text-sm font-medium text-naf-gray p-1 transition-all duration-[700ms] ease-out delay-[1350ms] ${
-          isVisible ? "opacity-100" : "opacity-0"
-        }`}
-      >
-      </h2>
-    </div>
+    </main>
   );
 }

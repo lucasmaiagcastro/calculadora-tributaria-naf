@@ -6,3 +6,29 @@
   --color-naf-gray: #B2B2B2;
   --color-naf-light: #EFEFEF;
 }
+
+:focus-visible {
+  outline: 3px solid #CD371F;
+  outline-offset: 2px;
+}
+
+nav :focus-visible,
+footer :focus-visible,
+.skip-link:focus-visible {
+  outline-color: #ffffff;
+}
+
+::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}

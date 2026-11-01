@@ -113,7 +113,7 @@ export default function Formulario() {
         {/* CABEÇALHO DA PÁGINA */}
         <div className={`text-center mb-8 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
           <h1 className="text-3xl font-bold text-[#132436] mb-2">Descubra onde você paga menos impostos</h1>
-          <p className="text-[#B2B2B2] font-medium max-w-xl mx-auto">
+          <p className="text-[#374151] font-medium max-w-xl mx-auto">
             Preencha os dados abaixo e o sistema fará um raio-x completo comparando o regime como Autônomo (PF) e como Empresa (PJ).
           </p>
         </div>
@@ -126,11 +126,12 @@ export default function Formulario() {
         >
           <div className="p-6 md:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div className="w-full">
-              <label className="block mb-2 text-sm font-medium text-[#132436]">Sua Profissão</label>
+              <label htmlFor="profissao" className="block mb-2 text-sm font-medium text-[#132436]">Sua Profissão</label>
               <select
+                id="profissao"
                 value={profissao}
                 onChange={(e) => setProfissao(e.target.value)}
-                className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition cursor-pointer"
+                className="w-full border border-gray-500 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition cursor-pointer"
               >
                 <option value="psicologo">Psicólogo(a)</option>
                 <option value="arquiteto">Arquiteto(a)</option>
@@ -142,47 +143,61 @@ export default function Formulario() {
 
             <div className="w-full">
               <div className="relative flex items-center gap-1 mb-2">
-                <label className="text-sm font-medium text-[#132436]">Renda Mensal (R$)</label>
+                <label htmlFor="renda" className="text-sm font-medium text-[#132436]">Renda Mensal (R$)</label>
                 <button
                   type="button"
-                  className="text-gray-400 hover:text-[#132436] focus:outline-none cursor-help"
+                  aria-label="Ajuda sobre renda mensal"
+                  aria-describedby="dica-renda"
+                  className="text-gray-600 hover:text-[#132436] cursor-help"
                   onMouseEnter={() => setShowTooltipRenda(true)}
                   onMouseLeave={() => setShowTooltipRenda(false)}
+                  onFocus={() => setShowTooltipRenda(true)}
+                  onBlur={() => setShowTooltipRenda(false)}
+                  onKeyDown={(e) => e.key === "Escape" && setShowTooltipRenda(false)}
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                 </button>
-                {showTooltipRenda && <div className="absolute z-10 w-64 p-3 text-sm text-white bg-[#132436] rounded-xl shadow-lg -top-2 left-full ml-2 border border-gray-200">Sua receita bruta total prevista para o mês.</div>}
+                <div id="dica-renda" role="tooltip" className={`${showTooltipRenda ? "" : "hidden"} absolute z-10 w-64 max-w-[calc(100vw-3rem)] p-3 text-sm text-white bg-[#132436] rounded-xl shadow-lg top-full left-0 mt-1`}>Sua receita bruta total prevista para o mês.</div>
               </div>
               <input
+                id="renda"
                 type="number"
                 value={renda}
+                aria-invalid={Boolean(erro)}
+                aria-describedby={erro ? "renda-erro" : undefined}
                 onChange={handleRendaChange}
                 max="15000"
                 placeholder="Ex: 5000"
-                className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
+                className="w-full border border-gray-500 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
               />
-              {erro && <p className="text-[#CD371F] text-xs mt-1 absolute font-medium">{erro}</p>}
+              {erro && <p id="renda-erro" role="alert" className="text-[#CD371F] text-sm mt-1 font-medium">{erro}</p>}
             </div>
 
             <div className="w-full">
               <div className="relative flex items-center gap-1 mb-2">
-                <label className="text-sm font-medium text-[#132436]">Custos Dedutíveis (R$)</label>
+                <label htmlFor="custos" className="text-sm font-medium text-[#132436]">Custos Dedutíveis (R$)</label>
                 <button
                   type="button"
-                  className="text-gray-400 hover:text-[#132436] focus:outline-none cursor-help"
+                  aria-label="Ajuda sobre custos dedutíveis"
+                  aria-describedby="dica-custos"
+                  className="text-gray-600 hover:text-[#132436] cursor-help"
                   onMouseEnter={() => setShowTooltipCustos(true)}
                   onMouseLeave={() => setShowTooltipCustos(false)}
+                  onFocus={() => setShowTooltipCustos(true)}
+                  onBlur={() => setShowTooltipCustos(false)}
+                  onKeyDown={(e) => e.key === "Escape" && setShowTooltipCustos(false)}
                 >
-                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
                 </button>
-                {showTooltipCustos && <div className="absolute z-10 w-64 p-3 text-sm text-white bg-[#132436] rounded-xl shadow-lg -top-2 right-full mr-2 border border-gray-200">Despesas do seu negócio (aluguel, internet, etc). Usado apenas para abater a base da PF.</div>}
+                <div id="dica-custos" role="tooltip" className={`${showTooltipCustos ? "" : "hidden"} absolute z-10 w-64 max-w-[calc(100vw-3rem)] p-3 text-sm text-white bg-[#132436] rounded-xl shadow-lg top-full left-0 mt-1`}>Despesas do seu negócio (aluguel, internet, etc). Usado apenas para abater a base da PF.</div>
               </div>
               <input
+                id="custos"
                 type="number"
                 value={custos}
                 onChange={(e) => setCustos(e.target.value)}
                 placeholder="Ex: 800"
-                className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
+                className="w-full border border-gray-500 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
               />
             </div>
 
@@ -195,7 +210,7 @@ export default function Formulario() {
                   value={proLabore}
                   onChange={(e) => setProLabore(e.target.value)}
                   placeholder="Ex: 1500"
-                  className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
+                  className="w-full border border-gray-500 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
                 />
               </div>
             )}
@@ -205,7 +220,7 @@ export default function Formulario() {
             <button onClick={calcularComparativo} disabled={calculando} className="w-full disabled:opacity-70 disabled:cursor-wait bg-[#CD371F] text-white font-bold py-4 rounded-xl hover:bg-[#a62b18] hover:scale-[1.01] transition-all duration-[400ms] ease-out shadow-md text-lg cursor-pointer">
               {calculando ? "Calculando..." : "Analisar Vantagem Tributária"}
             </button>
-            {mensagemErro && <p className="text-[#CD371F] font-medium text-center mt-4">{mensagemErro}</p>}
+            {mensagemErro && <p role="alert" className="text-[#CD371F] font-medium text-center mt-4">{mensagemErro}</p>}
           </div>
 
         </div>

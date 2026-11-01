@@ -48,11 +48,12 @@ export default function Sobre() {
               
               <div className="overflow-x-auto rounded-xl border border-naf-gray/30">
                 <table className="min-w-full text-xs text-gray-700">
+                  <caption className="sr-only">Tabela progressiva mensal do IRPF</caption>
                   <thead className="bg-naf-blue text-white">
                     <tr>
-                      <th className="py-2 px-3 text-left">Base (R$)</th>
-                      <th className="py-2 px-3 text-left">Alíquota</th>
-                      <th className="py-2 px-3 text-left">Deduzir (R$)</th>
+                      <th scope="col" className="py-2 px-3 text-left">Base (R$)</th>
+                      <th scope="col" className="py-2 px-3 text-left">Alíquota</th>
+                      <th scope="col" className="py-2 px-3 text-left">Deduzir (R$)</th>
                     </tr>
                   </thead>
                   <tbody>
