@@ -37,7 +37,7 @@ export default function Formulario() {
 
   const calcularComparativo = async () => {
     const rendaNum = parseFloat(renda);
-    const custosNum = parseFloat(custos);
+    const custosNum = custos === "" ? 0 : parseFloat(custos);
 
     const proLaboreNum = parseFloat(proLabore);
 
