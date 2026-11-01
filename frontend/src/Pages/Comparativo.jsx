@@ -1,6 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import GraficoComparativo from "../components/GraficoComparativo";
+import MemoriaCalculo from "../components/MemoriaCalculo";
+import { brl, percentual } from "../utils/formatar";
+
+const NOMES_PROFISSAO = {
+  psicologo: "Psicólogo(a)",
+  arquiteto: "Arquiteto(a)",
+  advogado: "Advogado(a)",
+  medico: "Médico(a)",
+  dentista: "Dentista",
+};
 
 export default function Comparativo() {
   const { state } = useLocation();
@@ -14,6 +25,7 @@ export default function Comparativo() {
 
 function ResultadoComparativo({ resultado }) {
   const { profissao } = resultado;
+  const [geradoEm] = useState(() => new Date());
   const [isVisible, setIsVisible] = useState(false);
   const [mostrarEmail, setMostrarEmail] = useState(false);
   const [email, setEmail] = useState("");
@@ -72,10 +84,22 @@ function ResultadoComparativo({ resultado }) {
         <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl border border-gray-200">
             <div className="border-t border-gray-200 bg-gray-50 rounded-b-3xl">
               <div id="resultado-comparativo" className="p-6 md:p-8 bg-[#ffffff]">
+                <header className="mb-8 rounded-2xl bg-[#132436] text-[#ffffff] p-6 text-center">
+                  <p className="text-xs uppercase tracking-widest text-[#d1d5db]">NAF · Núcleo de Apoio Contábil e Fiscal · Unichristus</p>
+                  <h2 className="text-2xl font-extrabold mt-1">Relatório Comparativo PF x PJ</h2>
+                  <p className="text-sm mt-2 text-[#e5e7eb]">
+                    Gerado em {geradoEm.toLocaleDateString("pt-BR")} às {geradoEm.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                  <p className="text-sm mt-1 text-[#e5e7eb]">
+                    {NOMES_PROFISSAO[profissao] ?? profissao} · Renda mensal {brl(resultado.renda)} · Custos {brl(resultado.custos)}
+                    {resultado.proLabore !== null && ` · Pró-labore ${brl(resultado.proLabore)}`}
+                  </p>
+                </header>
+
                 <div className="mb-8 p-6 rounded-2xl border-2 text-center shadow-sm" style={{ borderColor: resultado.siglaVencedora === 'PJ' ? '#22c55e' : '#3b82f6', backgroundColor: resultado.siglaVencedora === 'PJ' ? '#f0fdf4' : '#eff6ff' }}>
                   <h3 className="text-xl font-bold text-[#1f2937] mb-1">A melhor opção para você é:</h3>
                   <p className="text-3xl font-extrabold mb-2" style={{ color: resultado.siglaVencedora === 'PJ' ? '#16a34a' : '#2563eb' }}>{resultado.maisVantajoso}</p>
-                  <p className="text-[#374151] font-medium">Atuando como {resultado.siglaVencedora}, você tem uma <span className="font-bold underline decoration-2">economia de R$ {resultado.diferenca.toFixed(2)}</span> todos os meses.</p>
+                  <p className="text-[#374151] font-medium">Atuando como {resultado.siglaVencedora}, você tem uma <span className="font-bold underline decoration-2">economia de {brl(resultado.diferenca)}</span> todos os meses.</p>
                 </div>
 
                 <h4 className="text-center font-bold text-[#132436] mb-4 uppercase tracking-wider text-sm">Resumo Detalhado dos Cálculos</h4>
@@ -83,11 +107,11 @@ function ResultadoComparativo({ resultado }) {
                   <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PF' ? '#3b82f6' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PF' ? '#ffffff' : '#f3f4f6', opacity: resultado.siglaVencedora === 'PF' ? 1 : 0.7 }}>
                     <h3 className="font-bold text-xl text-[#132436] mb-4 border-b border-[#e5e7eb] pb-2 flex items-center justify-between">Pessoa Física (PF) {resultado.siglaVencedora === 'PF' && <span className="text-xs bg-[#eff6ff] text-[#1d4ed8] px-2 py-1 rounded-full uppercase">Recomendado</span>}</h3>
                     <div className="space-y-3 text-sm text-[#374151]">
-                      <div className="flex justify-between"><span>Base de Cálculo:</span> <span className="font-semibold">R$ {resultado.pf.base.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span>Base de Cálculo:</span> <span className="font-semibold">{brl(resultado.pf.base)}</span></div>
                       <div className="flex justify-between"><span>Faixa IRPF:</span> <span className="font-semibold">{resultado.pf.faixa}</span></div>
-                      <div className="flex justify-between"><span>Dedução Permitida:</span> <span className="font-semibold text-[#16a34a]">- R$ {resultado.pf.parcelaDedutivel.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span>Dedução Permitida:</span> <span className="font-semibold text-[#16a34a]">- {brl(resultado.pf.parcelaDedutivel)}</span></div>
                     </div>
-                    <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">R$ {resultado.pf.imposto.toFixed(2)}</span></div>
+                    <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">{brl(resultado.pf.imposto)}</span></div>
                   </div>
 
                   <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PJ' ? '#22c55e' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PJ' ? '#ffffff' : '#f3f4f6', opacity: resultado.siglaVencedora === 'PJ' ? 1 : 0.7 }}>
@@ -95,16 +119,24 @@ function ResultadoComparativo({ resultado }) {
                     <div className="space-y-3 text-sm text-[#374151]">
                       {resultado.pj.anexo && (
                         <>
-                          <div className="flex justify-between"><span>Fator R:</span> <span className="font-semibold">{(resultado.pj.fatorR * 100).toFixed(2).replace(".", ",")}%</span></div>
+                          <div className="flex justify-between"><span>Fator R:</span> <span className="font-semibold">{percentual(resultado.pj.fatorR)}</span></div>
                           <div className="flex justify-between"><span>Anexo aplicado:</span> <span className="font-semibold">Anexo {resultado.pj.anexo}</span></div>
                         </>
                       )}
-                      <div className="flex justify-between"><span>Simples ({resultado.pj.aliquota}):</span> <span className="font-semibold">R$ {resultado.pj.simples.toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span>Pró-labore base:</span> <span className="font-semibold">R$ {resultado.pj.salarioBase.toFixed(2)}</span></div>
-                      <div className="flex justify-between"><span>INSS Mensal (11%):</span> <span className="font-semibold">R$ {resultado.pj.inss.toFixed(2)}</span></div>
+                      <div className="flex justify-between"><span>Simples ({resultado.pj.aliquota}):</span> <span className="font-semibold">{brl(resultado.pj.simples)}</span></div>
+                      <div className="flex justify-between"><span>Pró-labore base:</span> <span className="font-semibold">{brl(resultado.pj.salarioBase)}</span></div>
+                      <div className="flex justify-between"><span>INSS Mensal (11%):</span> <span className="font-semibold">{brl(resultado.pj.inss)}</span></div>
                     </div>
-                    <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">R$ {resultado.pj.total.toFixed(2)}</span></div>
+                    <div className="mt-5 pt-3 border-t border-[#e5e7eb] flex justify-between items-end"><span className="font-bold text-[#132436]">Custo Mensal:</span><span className="text-2xl font-black text-[#CD371F]">{brl(resultado.pj.total)}</span></div>
                   </div>
+                </div>
+
+                <div className="mt-8">
+                  <GraficoComparativo impostoPF={resultado.pf.imposto} impostoPJ={resultado.pj.total} />
+                  <MemoriaCalculo resultado={resultado} />
+                  <p className="text-xs text-[#4b5563] border-t border-[#e5e7eb] pt-4">
+                    Aviso: os valores apresentados são estimativas para apoio à decisão, calculadas com as tabelas e alíquotas de 2026, e não substituem a orientação de um contador. Projeto do NAF Unichristus.
+                  </p>
                 </div>
               </div>
 
