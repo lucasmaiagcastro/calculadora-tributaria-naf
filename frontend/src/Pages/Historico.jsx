@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
@@ -41,9 +39,7 @@ export default function Historico() {
   }, [token]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#EFEFEF]">
-      <Navbar />
-
+    <div className="flex flex-col flex-grow bg-[#EFEFEF]">
       <main className="flex-grow flex flex-col items-center py-10 px-4">
         {/* Cabeçalho */}
         <div className={`text-center mb-8 transition-all duration-[700ms] ease-out delay-[200ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
@@ -130,8 +126,6 @@ export default function Historico() {
           )}
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

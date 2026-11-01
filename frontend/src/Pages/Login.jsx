@@ -45,7 +45,7 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
 
       alert("Login realizado com sucesso!");
-      navigate("/Home");
+      navigate("/");
 
     } catch (error) {
       const mensagemErro = error.response?.data?.error || "Erro ao conectar ao servidor.";
@@ -55,7 +55,7 @@ export default function Login() {
 
   return (
     <div
-      className="flex flex-col items-center justify-center min-h-screen bg-naf-light p-4"
+      className="flex flex-col items-center justify-center flex-grow bg-naf-light p-4"
     >
       <h1
         className={`text-3xl font-bold text-center mb-6 text-naf-blue transition-all duration-[700ms] ease-out delay-[200ms]
@@ -160,7 +160,7 @@ export default function Login() {
           }`}
         >
           Esqueceu a senha?{" "}
-          <a href="/RecuperarSenha" className="text-naf-red hover:underline font-bold">
+          <a href="/recuperar-senha" className="text-naf-red hover:underline font-bold">
             Recuperar Senha
           </a>
         </p>
