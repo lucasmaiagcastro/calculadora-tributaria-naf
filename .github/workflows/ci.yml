@@ -9,18 +9,40 @@ on:
 jobs:
   build-backend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 26
+        cache: npm
+        cache-dependency-path: backend/package-lock.json
+    - name: Instalar dependências
+      run: npm ci
+    - name: Gerar o client do Prisma
+      run: npx prisma generate
+    - name: Verificar sintaxe dos arquivos-fonte
+      run: find src -name '*.js' -print0 | xargs -0 -n1 node --check
 
   build-frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
     - uses: actions/checkout@v4
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 26
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+    - name: Instalar dependências
+      run: npm ci
+    - name: Lint
+      run: npm run lint
+    - name: Build
+      run: npm run build
