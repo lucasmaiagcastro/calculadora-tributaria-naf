@@ -16,12 +16,17 @@ export default function Sobre() {
     setRetorno(null);
 
     try {
-      await api.post("/send-email", formData);
-      setRetorno({ ok: true, texto: "Mensagem enviada com sucesso ao NAF!" });
+      const { data } = await api.post("/send-email", formData);
+      setRetorno({
+        ok: true,
+        texto: data.simulado
+          ? "Mensagem registrada, mas o envio de e-mail não está configurado neste ambiente."
+          : "Mensagem enviada com sucesso ao NAF!",
+      });
       setFormData({ nome: "", email: "", mensagem: "" });
     } catch (error) {
       console.error("Erro ao enviar mensagem ao NAF:", error);
-      setRetorno({ ok: false, texto: "Houve um erro ao enviar a mensagem. Tente novamente." });
+      setRetorno({ ok: false, texto: error.response?.data?.error || "Houve um erro ao enviar a mensagem. Tente novamente." });
     } finally {
       setEnviando(false);
     }

@@ -62,7 +62,7 @@ export default function Formulario() {
         proLabore: usaFatorR ? proLaboreNum : undefined
       });
 
-      const { impostoPF, impostoPJ, melhorOpcao, economiaMensal, fatorR, anexo } = response.data.calculo;
+      const { id, impostoPF, impostoPJ, melhorOpcao, economiaMensal, fatorR, anexo } = response.data.calculo;
 
       const basePF = rendaNum - custosNum;
       let faixaPF = "Isento";
@@ -85,6 +85,7 @@ export default function Formulario() {
       const siglaVencedora = melhorOpcao.includes("PJ") ? "PJ" : "PF";
 
       const resultado = {
+        calculoId: id,
         renda: rendaNum,
         custos: custosNum,
         proLabore: usaFatorR ? proLaboreNum : null,

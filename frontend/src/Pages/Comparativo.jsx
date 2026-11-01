@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import html2pdf from "html2pdf.js";
+import api from "../services/api";
 import GraficoComparativo from "../components/GraficoComparativo";
 import MemoriaCalculo from "../components/MemoriaCalculo";
 import { brl, percentual } from "../utils/formatar";
@@ -31,19 +32,33 @@ function ResultadoComparativo({ resultado }) {
   const [email, setEmail] = useState("");
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const [gerandoPdf, setGerandoPdf] = useState(false);
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
 
-  const enviarEmail = () => {
+  const enviarEmail = async () => {
     if (!email.includes("@")) {
       setMensagemEnvio("Por favor, insira um e-mail válido.");
       return;
     }
-    setMensagemEnvio(`Resultados simulados e enviados para ${email} com sucesso!`);
-    setEmail("");
+
+    setEnviandoEmail(true);
+    try {
+      const { data } = await api.post("/send-email/resultado", { email, calculoId: resultado.calculoId });
+      setMensagemEnvio(
+        data.simulado
+          ? "O envio de e-mail não está configurado neste ambiente; a mensagem foi apenas registrada no servidor."
+          : `Resultados enviados para ${email} com sucesso!`
+      );
+      setEmail("");
+    } catch (error) {
+      setMensagemEnvio(error.response?.data?.error || "Não foi possível enviar o e-mail. Tente novamente.");
+    } finally {
+      setEnviandoEmail(false);
+    }
   };
 
   const gerarPDF = async () => {
@@ -155,9 +170,9 @@ function ResultadoComparativo({ resultado }) {
                     <label htmlFor="email-resultado" className="block text-sm font-medium text-[#132436]">Qual e-mail deve receber a simulação?</label>
                     <div className="flex flex-col sm:flex-row gap-2">
                       <input id="email-resultado" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contato@exemplo.com" className="flex-grow border border-gray-300 px-4 py-2 rounded-xl focus:ring-2 focus:ring-[#132436] outline-none text-sm" />
-                      <button onClick={enviarEmail} className="bg-[#CD371F] text-white px-6 py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold cursor-pointer shadow-sm">Enviar Agora</button>
+                      <button onClick={enviarEmail} disabled={enviandoEmail} className="bg-[#CD371F] text-white px-6 py-2 rounded-xl hover:bg-[#a62b18] transition text-sm font-bold cursor-pointer shadow-sm disabled:opacity-70 disabled:cursor-wait">{enviandoEmail ? "Enviando..." : "Enviar Agora"}</button>
                     </div>
-                    {mensagemEnvio && <p role="status" className="text-sm font-bold text-green-700">{mensagemEnvio}</p>}
+                    {mensagemEnvio && <p role="status" className="text-sm font-bold text-[#374151]">{mensagemEnvio}</p>}
                   </div>
                 )}
               </div>

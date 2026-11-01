@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
 const calculoRoutes = require('./routes/calculoRoutes');
+const emailRoutes = require('./routes/emailRoutes');
 
 if (!process.env.JWT_SECRET) {
   console.error('JWT_SECRET não definido. Configure a variável de ambiente antes de iniciar o servidor.');
@@ -16,6 +17,7 @@ app.use(express.json());
 
 app.use('/auth', authRoutes);
 app.use('/calculos', calculoRoutes);
+app.use('/send-email', emailRoutes);
 
 app.get('/', (req, res) => {
   res.json({ 
