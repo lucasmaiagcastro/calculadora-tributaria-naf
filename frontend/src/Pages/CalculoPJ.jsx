@@ -4,6 +4,8 @@ import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 
+const PROFISSOES_FATOR_R = ["medico", "dentista"];
+
 export default function CalculoPJ() {
   const [renda, setRenda] = useState("");
   const [erro, setErro] = useState("");
@@ -14,6 +16,8 @@ export default function CalculoPJ() {
   const [email, setEmail] = useState("");
   const [mensagemEnvio, setMensagemEnvio] = useState("");
   const [profissao, setProfissao] = useState("psicologo");
+  const [proLabore, setProLabore] = useState("");
+  const usaFatorR = PROFISSOES_FATOR_R.includes(profissao);
   const [showTooltipRenda, setShowTooltipRenda] = useState(false);
 
   const token = localStorage.getItem("token");
@@ -43,8 +47,15 @@ export default function CalculoPJ() {
 
   const calcularPJ = async () => {
     const rendaNum = parseFloat(renda);
+    const proLaboreNum = parseFloat(proLabore);
+
     if (isNaN(rendaNum)) {
       setResultado("Por favor, insira um valor válido.");
+      return;
+    }
+
+    if (usaFatorR && (isNaN(proLaboreNum) || proLaboreNum < 0 || proLaboreNum > rendaNum)) {
+      setResultado("Informe o pró-labore/folha mensal, entre R$ 0,00 e o valor do faturamento.");
       return;
     }
 
@@ -52,15 +63,20 @@ export default function CalculoPJ() {
       const response = await api.post("/calculos", {
         tipoProfissao: profissao,
         faturamento: rendaNum,
-        custos: 0
+        custos: 0,
+        proLabore: usaFatorR ? proLaboreNum : undefined
       });
 
-      const { impostoPJ } = response.data.calculo;
+      const { impostoPJ, fatorR, anexo } = response.data.calculo;
 
       let simples = 0;
       let aliquota = "";
 
-      if (profissao === "advogado") {
+      if (usaFatorR) {
+        const taxa = anexo === "III" ? 0.06 : 0.155;
+        simples = rendaNum * taxa;
+        aliquota = anexo === "III" ? "6%" : "15,5%";
+      } else if (profissao === "advogado") {
         simples = rendaNum * 0.045;
         aliquota = "4,5%";
       } else {
@@ -68,9 +84,9 @@ export default function CalculoPJ() {
         aliquota = "6%";
       }
 
-      const salario28 = rendaNum * 0.28;
+      const proLaboreBase = usaFatorR ? proLaboreNum : rendaNum * 0.28;
       const salarioMin = 1621;
-      const salarioBase = salario28 < salarioMin ? salarioMin : salario28;
+      const salarioBase = Math.max(proLaboreBase, salarioMin);
       const inss = salarioBase * 0.11;
 
       setResultado({
@@ -79,6 +95,8 @@ export default function CalculoPJ() {
         salarioBase,
         inss,
         total: impostoPJ,
+        fatorR,
+        anexo,
       });
 
       setMostrarEmail(false);
@@ -116,6 +134,8 @@ export default function CalculoPJ() {
                 <option value="psicologo">Psicólogo(a)</option>
                 <option value="arquiteto">Arquiteto(a)</option>
                 <option value="advogado">Advogado(a)</option>
+                <option value="medico">Médico(a)</option>
+                <option value="dentista">Dentista</option>
               </select>
             </div>
 
@@ -137,6 +157,13 @@ export default function CalculoPJ() {
               {erro && <p className="text-naf-red text-sm mt-1 font-medium">{erro}</p>}
             </div>
 
+            {usaFatorR && (
+              <div className={`transition-all duration-[700ms] ease-out delay-[700ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+                <label htmlFor="pro-labore" className="block mb-1 text-sm font-medium text-naf-blue">Pró-labore / Folha de Pagamento Mensal (R$)</label>
+                <input id="pro-labore" type="number" value={proLabore} onChange={(e) => setProLabore(e.target.value)} placeholder="Ex: 1500" className="w-full border border-naf-gray px-4 py-2 rounded-xl focus:ring-2 focus:ring-naf-red outline-none transition delay-[80ms] duration-[400ms] ease-in-out hover:shadow-sm" />
+              </div>
+            )}
+
             <div className={`transition-all duration-[700ms] ease-out delay-[800ms] ${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
               <button onClick={calcularPJ} className="w-full bg-naf-blue text-white font-bold py-3 rounded-xl hover:bg-[#0c1825] hover:scale-105 transition-all duration-[400ms] ease-out shadow-md">
                 Calcular
@@ -150,6 +177,12 @@ export default function CalculoPJ() {
                 ) : (
                   <>
                     <div className="space-y-2 text-sm text-naf-blue">
+                      {resultado.anexo && (
+                        <>
+                          <p><strong>Fator R:</strong> {(resultado.fatorR * 100).toFixed(2).replace(".", ",")}%</p>
+                          <p><strong>Anexo aplicado:</strong> Anexo {resultado.anexo}</p>
+                        </>
+                      )}
                       <p><strong>Simples Nacional ({resultado.aliquota}):</strong> R$ {resultado.simples.toFixed(2)}</p>
                       <p><strong>Pró-labore base:</strong> R$ {resultado.salarioBase.toFixed(2)}</p>
                       <p><strong>INSS (11%):</strong> R$ {resultado.inss.toFixed(2)}</p>

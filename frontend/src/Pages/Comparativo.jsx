@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import html2pdf from "html2pdf.js";
 import api from "../services/api";
 
+const PROFISSOES_FATOR_R = ["medico", "dentista"];
+
 export default function Comparativo() {
   const [renda, setRenda] = useState("");
   const [custos, setCustos] = useState("");
@@ -14,7 +16,9 @@ export default function Comparativo() {
   const [showTooltipRenda, setShowTooltipRenda] = useState(false);
   const [showTooltipCustos, setShowTooltipCustos] = useState(false);
   const [profissao, setProfissao] = useState("psicologo");
-  
+  const [proLabore, setProLabore] = useState("");
+  const usaFatorR = PROFISSOES_FATOR_R.includes(profissao);
+
   const [mostrarEmail, setMostrarEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [mensagemEnvio, setMensagemEnvio] = useState("");
@@ -49,8 +53,15 @@ export default function Comparativo() {
     const rendaNum = parseFloat(renda);
     const custosNum = parseFloat(custos);
 
+    const proLaboreNum = parseFloat(proLabore);
+
     if (isNaN(rendaNum) || isNaN(custosNum)) {
       setResultado("Por favor, insira valores válidos.");
+      return;
+    }
+
+    if (usaFatorR && (isNaN(proLaboreNum) || proLaboreNum < 0 || proLaboreNum > rendaNum)) {
+      setResultado("Informe o pró-labore/folha mensal, entre R$ 0,00 e o valor da renda.");
       return;
     }
 
@@ -58,10 +69,11 @@ export default function Comparativo() {
       const response = await api.post("/calculos", {
         tipoProfissao: profissao,
         faturamento: rendaNum,
-        custos: custosNum
+        custos: custosNum,
+        proLabore: usaFatorR ? proLaboreNum : undefined
       });
 
-      const { impostoPF, impostoPJ, melhorOpcao, economiaMensal } = response.data.calculo;
+      const { impostoPF, impostoPJ, melhorOpcao, economiaMensal, fatorR, anexo } = response.data.calculo;
 
       const basePF = rendaNum - custosNum;
       let faixaPF = "Isento";
@@ -73,17 +85,19 @@ export default function Comparativo() {
       else if (basePF <= 4664.68) { faixaPF = "22,5%"; parcelaDedutivel = 675.49; }
       else { faixaPF = "27,5%"; parcelaDedutivel = 908.73; }
 
-      let aliquotaPJ = profissao === "advogado" ? "4,5%" : "6%";
-      const salario28 = rendaNum * 0.28;
+      let taxaSimples = profissao === "advogado" ? 0.045 : 0.06;
+      if (usaFatorR) taxaSimples = anexo === "III" ? 0.06 : 0.155;
+      const aliquotaPJ = `${(taxaSimples * 100).toString().replace(".", ",")}%`;
+      const proLaboreBase = usaFatorR ? proLaboreNum : rendaNum * 0.28;
       const salarioMin = 1621;
-      const salarioBase = salario28 < salarioMin ? salarioMin : salario28;
+      const salarioBase = Math.max(proLaboreBase, salarioMin);
       const inss = salarioBase * 0.11;
 
       const siglaVencedora = melhorOpcao.includes("PJ") ? "PJ" : "PF";
 
       setResultado({
         pf: { base: basePF, faixa: faixaPF, parcelaDedutivel, imposto: impostoPF },
-        pj: { simples: rendaNum * (profissao === "advogado" ? 0.045 : 0.06), aliquota: aliquotaPJ, salarioBase, inss, total: impostoPJ },
+        pj: { simples: rendaNum * taxaSimples, aliquota: aliquotaPJ, salarioBase, inss, total: impostoPJ, fatorR, anexo },
         maisVantajoso: melhorOpcao,
         siglaVencedora,
         diferenca: economiaMensal
@@ -165,6 +179,8 @@ export default function Comparativo() {
                 <option value="psicologo">Psicólogo(a)</option>
                 <option value="arquiteto">Arquiteto(a)</option>
                 <option value="advogado">Advogado(a)</option>
+                <option value="medico">Médico(a)</option>
+                <option value="dentista">Dentista</option>
               </select>
             </div>
 
@@ -213,6 +229,20 @@ export default function Comparativo() {
                 className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
               />
             </div>
+
+            {usaFatorR && (
+              <div className="w-full">
+                <label htmlFor="pro-labore" className="block mb-2 text-sm font-medium text-[#132436]">Pró-labore / Folha de Pagamento Mensal (R$)</label>
+                <input
+                  id="pro-labore"
+                  type="number"
+                  value={proLabore}
+                  onChange={(e) => setProLabore(e.target.value)}
+                  placeholder="Ex: 1500"
+                  className="w-full border border-gray-300 px-4 py-3 rounded-xl focus:ring-2 focus:ring-[#CD371F] outline-none transition"
+                />
+              </div>
+            )}
           </div>
 
           <div className="px-6 md:px-8 pb-8">
@@ -248,6 +278,12 @@ export default function Comparativo() {
                   <div className="p-5 rounded-xl border-2 shadow-md" style={{ borderColor: resultado.siglaVencedora === 'PJ' ? '#22c55e' : '#e5e7eb', backgroundColor: resultado.siglaVencedora === 'PJ' ? '#ffffff' : '#f3f4f6', opacity: resultado.siglaVencedora === 'PJ' ? 1 : 0.7 }}>
                     <h3 className="font-bold text-xl text-[#132436] mb-4 border-b border-[#e5e7eb] pb-2 flex items-center justify-between">Pessoa Jurídica (PJ) {resultado.siglaVencedora === 'PJ' && <span className="text-xs bg-[#f0fdf4] text-[#15803d] px-2 py-1 rounded-full uppercase">Recomendado</span>}</h3>
                     <div className="space-y-3 text-sm text-[#374151]">
+                      {resultado.pj.anexo && (
+                        <>
+                          <div className="flex justify-between"><span>Fator R:</span> <span className="font-semibold">{(resultado.pj.fatorR * 100).toFixed(2).replace(".", ",")}%</span></div>
+                          <div className="flex justify-between"><span>Anexo aplicado:</span> <span className="font-semibold">Anexo {resultado.pj.anexo}</span></div>
+                        </>
+                      )}
                       <div className="flex justify-between"><span>Simples ({resultado.pj.aliquota}):</span> <span className="font-semibold">R$ {resultado.pj.simples.toFixed(2)}</span></div>
                       <div className="flex justify-between"><span>Pró-labore base:</span> <span className="font-semibold">R$ {resultado.pj.salarioBase.toFixed(2)}</span></div>
                       <div className="flex justify-between"><span>INSS Mensal (11%):</span> <span className="font-semibold">R$ {resultado.pj.inss.toFixed(2)}</span></div>

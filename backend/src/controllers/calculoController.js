@@ -1,9 +1,18 @@
 const prisma = require('../config/prisma');
 
+const PROFISSOES_FATOR_R = ['medico', 'dentista'];
+const LIMITE_FATOR_R = 0.28;
+const RENDA_MAXIMA = 15000;
+
+// Com renda mensal limitada a R$ 15.000, a receita dos 12 meses não passa de R$ 180.000,
+// o que mantém o cálculo sempre na 1ª faixa do Simples Nacional.
+const ALIQUOTA_ANEXO_III = 0.06;
+const ALIQUOTA_ANEXO_V = 0.155;
+
 const calculoController = {
   create: async (req, res) => {
     try {
-      const { tipoProfissao, faturamento, custos } = req.body;
+      const { tipoProfissao, faturamento, custos, proLabore } = req.body;
       const userId = req.userId;
 
       if (!tipoProfissao || faturamento === undefined) {
@@ -12,6 +21,24 @@ const calculoController = {
 
       const rendaNum = parseFloat(faturamento);
       const custosNum = custos ? parseFloat(custos) : 0;
+
+      if (isNaN(rendaNum) || rendaNum < 0 || rendaNum > RENDA_MAXIMA) {
+        return res.status(400).json({ error: "A renda mensal deve estar entre R$ 0,00 e R$ 15.000,00." });
+      }
+
+      const usaFatorR = PROFISSOES_FATOR_R.includes(tipoProfissao.toLowerCase());
+      let proLaboreNum = null;
+      let fatorR = null;
+      let anexo = null;
+
+      if (usaFatorR) {
+        proLaboreNum = parseFloat(proLabore);
+        if (isNaN(proLaboreNum) || proLaboreNum < 0 || proLaboreNum > rendaNum) {
+          return res.status(400).json({ error: "Informe o pró-labore/folha mensal, entre R$ 0,00 e o valor da renda." });
+        }
+        fatorR = rendaNum > 0 ? proLaboreNum / rendaNum : 0;
+        anexo = fatorR >= LIMITE_FATOR_R ? 'III' : 'V';
+      }
 
       // --- REGRA DE NEGÓCIO DA PESSOA FÍSICA (IRPF 2026) ---
       const basePF = rendaNum - custosNum;
@@ -37,16 +64,18 @@ const calculoController = {
 
       // --- REGRA DE NEGÓCIO DA PESSOA JURÍDICA (Simples Nacional 2026) ---
       let simples = 0;
-      if (tipoProfissao.toLowerCase() === "advogado") {
+      if (usaFatorR) {
+        simples = rendaNum * (anexo === 'III' ? ALIQUOTA_ANEXO_III : ALIQUOTA_ANEXO_V);
+      } else if (tipoProfissao.toLowerCase() === "advogado") {
         simples = rendaNum * 0.045; // Anexo IV: 4,5%
       } else {
         // Psicólogo e Arquiteto - Anexo III (Considerando o Fator R ativo no front)
         simples = rendaNum * 0.06; // 6%
       }
 
-      const salario28 = rendaNum * 0.28;
       const salarioMin = 1621; // Salário mínimo projetado para 2026
-      const salarioBase = salario28 < salarioMin ? salarioMin : salario28;
+      const proLaboreBase = usaFatorR ? proLaboreNum : rendaNum * 0.28;
+      const salarioBase = Math.max(proLaboreBase, salarioMin);
       const inss = salarioBase * 0.11; // 11% obrigatório sobre o pró-labore
       const impostoPJ = simples + inss;
 
@@ -60,6 +89,9 @@ const calculoController = {
           tipoProfissao,
           faturamento: rendaNum,
           custos: custosNum,
+          proLabore: proLaboreNum,
+          fatorR,
+          anexo,
           impostoPF,
           impostoPJ,
           melhorOpcao,
