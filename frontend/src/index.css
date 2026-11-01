@@ -32,3 +32,83 @@ footer :focus-visible,
     transition-delay: 0ms !important;
   }
 }
+
+/* Tema escuro: as cores são sobrescritas fora do relatório (#resultado-comparativo), que permanece claro como o PDF. */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0e1621;
+}
+
+html.dark :is(.bg-naf-light, .bg-\[\#EFEFEF\]):not(#resultado-comparativo *) {
+  background-color: #0e1621;
+}
+
+html.dark :is(.bg-white, .bg-naf-light\/50):not(#resultado-comparativo *) {
+  background-color: #172231;
+}
+
+html.dark :is(.bg-gray-50, .bg-\[\#f3f4f6\]):not(#resultado-comparativo *) {
+  background-color: #1d2a3b;
+}
+
+html.dark :is(.text-naf-blue, .text-\[\#132436\], .text-\[\#1f2937\]):not(#resultado-comparativo *) {
+  color: #e8eef6;
+}
+
+html.dark :is(.text-gray-700, .text-gray-600, .text-gray-500, .text-\[\#374151\], .text-\[\#4b5563\], .text-naf-gray):not(#resultado-comparativo *) {
+  color: #b9c5d4;
+}
+
+html.dark :is(.text-naf-red, .text-\[\#CD371F\], .text-\[\#a62b18\]):not(#resultado-comparativo *) {
+  color: #ff8f7a;
+}
+
+html.dark :is(.text-green-800, .text-green-700, .text-\[\#15803d\]):not(#resultado-comparativo *) {
+  color: #6ee7a0;
+}
+
+html.dark :is(.border-gray-100, .border-gray-200, .border-gray-300, .border-naf-gray\/20, .border-naf-gray\/30, .border-\[\#e5e7eb\]):not(#resultado-comparativo *) {
+  border-color: #2f3e53;
+}
+
+html.dark .divide-gray-100 > :not(#resultado-comparativo *) {
+  border-color: #2f3e53;
+}
+
+html.dark :is(input, select, textarea):not(#resultado-comparativo *) {
+  background-color: #0e1621;
+  color: #e8eef6;
+}
+
+html.dark ::placeholder {
+  color: #94a3b8;
+}
+
+html.dark :focus-visible {
+  outline-color: #ff8f7a;
+}
+
+html.dark nav :focus-visible,
+html.dark footer :focus-visible,
+html.dark .skip-link:focus-visible {
+  outline-color: #ffffff;
+}
+
+html.dark .bg-green-50:not(#resultado-comparativo *) {
+  background-color: #123524;
+  color: #86efac;
+  border-color: #1f5a3a;
+}
+
+html.dark .bg-blue-50:not(#resultado-comparativo *) {
+  background-color: #12284a;
+  color: #93c5fd;
+  border-color: #1e3f73;
+}
+
+html.dark :is(button.bg-naf-blue, button.bg-\[\#132436\]):not(nav *):not(#resultado-comparativo *) {
+  background-color: #2b4a6f;
+}

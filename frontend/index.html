@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Calculadora Web Comparativa entre Pessoa Física e Pessoa Jurídica (NAF)." />
     
+    <script>
+      try {
+        var tema = localStorage.getItem("tema");
+        if (tema === "escuro" || (!tema && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
     <title>Calculadora Tributária NAF</title>
   </head>
   <body>
