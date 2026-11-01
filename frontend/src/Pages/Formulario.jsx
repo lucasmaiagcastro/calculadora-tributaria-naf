@@ -85,6 +85,9 @@ export default function Formulario() {
       const siglaVencedora = melhorOpcao.includes("PJ") ? "PJ" : "PF";
 
       const resultado = {
+        renda: rendaNum,
+        custos: custosNum,
+        proLabore: usaFatorR ? proLaboreNum : null,
         pf: { base: basePF, faixa: faixaPF, parcelaDedutivel, imposto: impostoPF },
         pj: { simples: rendaNum * taxaSimples, aliquota: aliquotaPJ, salarioBase, inss, total: impostoPJ, fatorR, anexo },
         maisVantajoso: melhorOpcao,
