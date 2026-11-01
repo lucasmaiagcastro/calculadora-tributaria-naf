@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { percentual } from "../utils/formatar";
+import { baixarCsv, numeroCsv } from "../utils/csv";
 
 export default function Historico() {
   const [calculos, setCalculos] = useState([]);
@@ -39,6 +40,27 @@ export default function Historico() {
     if (token) buscarHistorico();
   }, [token]);
 
+  const exportarCsv = () => {
+    const cabecalho = [
+      "Data", "Profissão", "Faturamento (R$)", "Custos (R$)", "Pró-labore (R$)", "Fator R (%)", "Anexo",
+      "Imposto PF (R$)", "Imposto PJ (R$)", "Melhor opção", "Economia mensal (R$)",
+    ];
+    const linhas = calculos.map((c) => [
+      new Date(c.createdAt).toLocaleString("pt-BR"),
+      c.tipoProfissao,
+      numeroCsv(c.faturamento),
+      numeroCsv(c.custos),
+      numeroCsv(c.proLabore),
+      c.fatorR === null ? "" : numeroCsv(c.fatorR * 100),
+      c.anexo,
+      numeroCsv(c.impostoPF),
+      numeroCsv(c.impostoPJ),
+      c.melhorOpcao,
+      numeroCsv(c.economiaMensal),
+    ]);
+    baixarCsv("historico-simulacoes.csv", cabecalho, linhas);
+  };
+
   return (
     <div className="flex flex-col flex-grow bg-[#EFEFEF]">
       <main className="flex-grow flex flex-col items-center py-10 px-4">
@@ -72,63 +94,75 @@ export default function Historico() {
               </button>
             </div>
           ) : (
-            <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-inner">
-              <table className="min-w-full text-sm text-gray-700">
-                <caption className="sr-only">Histórico de simulações tributárias salvas</caption>
-                <thead className="bg-[#132436] text-white text-xs uppercase tracking-wider">
-                  <tr>
-                    <th scope="col" className="py-4 px-4 text-left">Data</th>
-                    <th scope="col" className="py-4 px-4 text-left">Profissão</th>
-                    <th scope="col" className="py-4 px-4 text-left">Faturamento (Bruto)</th>
-                    <th scope="col" className="py-4 px-4 text-left">Livro Caixa (PF)</th>
-                    <th scope="col" className="py-4 px-4 text-left">Imposto PF</th>
-                    <th scope="col" className="py-4 px-4 text-left">Imposto PJ</th>
-                    <th scope="col" className="py-4 px-4 text-left">Fator R</th>
-                    <th scope="col" className="py-4 px-4 text-center">Melhor Opção</th>
-                    <th scope="col" className="py-4 px-4 text-right">Economia</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {calculos.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-4 px-4 font-medium text-gray-500">
-                        {new Date(item.createdAt).toLocaleDateString("pt-BR")}
-                      </td>
-                      <td className="py-4 px-4 capitalize font-semibold text-naf-blue">
-                        {item.tipoProfissao}
-                      </td>
-                      <td className="py-4 px-4 font-medium">
-                        R$ {item.faturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-4 px-4 text-gray-500">
-                        {item.custos ? `R$ ${item.custos.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                      </td>
-                      <td className="py-4 px-4 text-[#CD371F] font-medium">
-                        R$ {item.impostoPF.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-4 px-4 text-[#CD371F] font-medium">
-                        R$ {item.impostoPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
-                      <td className="py-4 px-4 text-gray-600">
-                        {item.anexo ? `${percentual(item.fatorR)} · Anexo ${item.anexo}` : "—"}
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
-                          item.melhorOpcao.includes("PJ") 
-                            ? "bg-green-50 text-green-700 border border-green-200" 
-                            : "bg-blue-50 text-blue-700 border border-blue-200"
-                        }`}>
-                          {item.melhorOpcao.includes("PJ") ? "PJ" : "PF"}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4 text-right font-bold text-green-700">
-                        R$ {item.economiaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                      </td>
+            <>
+              <div className="flex justify-end mb-4">
+                <button
+                  type="button"
+                  onClick={exportarCsv}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#132436] text-white text-sm font-bold rounded-xl hover:bg-[#0c1825] transition-colors cursor-pointer"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3" /></svg>
+                  Exportar CSV
+                </button>
+              </div>
+              <div className="overflow-x-auto rounded-2xl border border-gray-100 shadow-inner">
+                <table className="min-w-full text-sm text-gray-700">
+                  <caption className="sr-only">Histórico de simulações tributárias salvas</caption>
+                  <thead className="bg-[#132436] text-white text-xs uppercase tracking-wider">
+                    <tr>
+                      <th scope="col" className="py-4 px-4 text-left">Data</th>
+                      <th scope="col" className="py-4 px-4 text-left">Profissão</th>
+                      <th scope="col" className="py-4 px-4 text-left">Faturamento (Bruto)</th>
+                      <th scope="col" className="py-4 px-4 text-left">Livro Caixa (PF)</th>
+                      <th scope="col" className="py-4 px-4 text-left">Imposto PF</th>
+                      <th scope="col" className="py-4 px-4 text-left">Imposto PJ</th>
+                      <th scope="col" className="py-4 px-4 text-left">Fator R</th>
+                      <th scope="col" className="py-4 px-4 text-center">Melhor Opção</th>
+                      <th scope="col" className="py-4 px-4 text-right">Economia</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {calculos.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50/80 transition-colors">
+                        <td className="py-4 px-4 font-medium text-gray-500">
+                          {new Date(item.createdAt).toLocaleDateString("pt-BR")}
+                        </td>
+                        <td className="py-4 px-4 capitalize font-semibold text-naf-blue">
+                          {item.tipoProfissao}
+                        </td>
+                        <td className="py-4 px-4 font-medium">
+                          R$ {item.faturamento.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-4 text-gray-500">
+                          {item.custos ? `R$ ${item.custos.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                        </td>
+                        <td className="py-4 px-4 text-[#CD371F] font-medium">
+                          R$ {item.impostoPF.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-4 text-[#CD371F] font-medium">
+                          R$ {item.impostoPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="py-4 px-4 text-gray-600">
+                          {item.anexo ? `${percentual(item.fatorR)} · Anexo ${item.anexo}` : "—"}
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                          <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                            item.melhorOpcao.includes("PJ") 
+                              ? "bg-green-50 text-green-700 border border-green-200" 
+                              : "bg-blue-50 text-blue-700 border border-blue-200"
+                          }`}>
+                            {item.melhorOpcao.includes("PJ") ? "PJ" : "PF"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4 text-right font-bold text-green-700">
+                          R$ {item.economiaMensal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
           )}
         </div>
       </main>
