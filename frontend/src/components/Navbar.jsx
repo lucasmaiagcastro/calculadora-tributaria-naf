@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const linkBase = "px-3 py-2 rounded-lg text-sm font-medium text-naf-light hover:bg-naf-red hover:text-white transition-colors duration-300 whitespace-nowrap";
 const linkAtivo = "bg-white/15 text-white";
@@ -31,24 +32,27 @@ export default function Navbar() {
             Calculadora Tributária
           </Link>
 
-          <button
-            type="button"
-            onClick={() => setAberto(!aberto)}
-            aria-expanded={aberto}
-            aria-controls="menu-links"
-            aria-label={aberto ? "Fechar menu" : "Abrir menu"}
-            className="md:hidden p-2 rounded-lg text-white hover:bg-naf-red transition-colors cursor-pointer"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              {aberto
-                ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />}
-            </svg>
-          </button>
+          <div className="flex items-center gap-1 md:order-3 md:ml-2">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => setAberto(!aberto)}
+              aria-expanded={aberto}
+              aria-controls="menu-links"
+              aria-label={aberto ? "Fechar menu" : "Abrir menu"}
+              className="md:hidden p-2 rounded-lg text-white hover:bg-naf-red transition-colors cursor-pointer"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                {aberto
+                  ? <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  : <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />}
+              </svg>
+            </button>
+          </div>
 
           <ul
             id="menu-links"
-            className={`${aberto ? "flex" : "hidden"} md:flex absolute md:static top-16 left-0 right-0 z-20 flex-col md:flex-row md:items-center gap-1 bg-naf-blue md:bg-transparent p-4 md:p-0 border-b md:border-0 border-naf-gray/20`}
+            className={`${aberto ? "flex" : "hidden"} md:flex md:order-2 md:ml-auto absolute md:static top-16 left-0 right-0 z-20 flex-col md:flex-row md:items-center gap-1 bg-naf-blue md:bg-transparent p-4 md:p-0 border-b md:border-0 border-naf-gray/20`}
           >
             {logado && (
               <>
